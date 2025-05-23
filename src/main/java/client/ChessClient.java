@@ -25,7 +25,7 @@ public class ChessClient {
                 while ((line = in.readLine()) != null) {
                     String msg = line;
                     Platform.runLater(() -> {
-                        System.out.println("Client received: " + msg);
+                        System.out.println("[INFO] Message from server: " + msg);
                         if (messageHandler != null) {
                             messageHandler.accept(msg);
                         }

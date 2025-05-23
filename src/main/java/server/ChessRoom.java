@@ -35,4 +35,18 @@ public class ChessRoom {
         ClientHandler to = (from == whitePlayer) ? blackPlayer : whitePlayer;
         to.sendMessage(moveMessage);
     }
+
+    private boolean hasNotified = false;
+
+    public void notifyOpponentDisconnected(ClientHandler leaver) {
+        if (hasNotified) return;
+        hasNotified = true;
+
+        ClientHandler remaining = (leaver == whitePlayer) ? blackPlayer : whitePlayer;
+        if (remaining != null) {
+            System.out.println("[INFO] " + leaver.getName() + " has disconnected. Notifying " + remaining.getName() + "...");
+            remaining.sendMessage("OPPONENT_LEFT");
+        }
+    }
+
 }

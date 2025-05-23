@@ -23,11 +23,18 @@ public class EndScreen {
         resultLabel.setFont(new Font(28));
         resultLabel.setTextFill(Color.WHITE);
 
+        Button playAgainButton = new Button("Play Again");
+        playAgainButton.setFont(new Font(16));
+        playAgainButton.setOnAction(e -> {
+            StartScreen startScreen = new StartScreen(stage);
+            startScreen.show();
+        });
+
         Button endButton = new Button("End Game");
         endButton.setFont(new Font(16));
         endButton.setOnAction(e -> System.exit(0));
 
-        VBox layout = new VBox(20, resultLabel, endButton);
+        VBox layout = new VBox(20, resultLabel, playAgainButton, endButton);
         layout.setAlignment(Pos.CENTER);
         layout.setStyle("-fx-background-color: black;");
 

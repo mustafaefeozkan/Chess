@@ -97,7 +97,7 @@ public class RuleEngine {
         return true;
     }
 
-    private boolean canCastle(String from, String to, String color) {
+    public boolean canCastle(String from, String to, String color) {
         int row = color.equals("white") ? 7 : 0;
         Piece king = board.getPiece(from);
         if (!(king instanceof King) || king.hasMoved()) return false;
@@ -137,6 +137,21 @@ public class RuleEngine {
         return false;
     }
 
+    public String[] getCastleRookMove(String from, String to, String color) {
+        int row = color.equals("white") ? 7 : 0;
+        if (!from.equals(Board.toChessNotation(row, 4))) return null;
+
+        if (to.equals(Board.toChessNotation(row, 6))) {
+            return new String[]{Board.toChessNotation(row, 7), Board.toChessNotation(row, 5)};
+        }
+
+        if (to.equals(Board.toChessNotation(row, 2))) {
+            return new String[]{Board.toChessNotation(row, 0), Board.toChessNotation(row, 3)};
+        }
+
+        return null;
+    }
+
     private String findKingPosition(String color) {
         for (int r = 0; r < 8; r++) {
             for (int c = 0; c < 8; c++) {
@@ -158,4 +173,25 @@ public class RuleEngine {
     public Piece promotePawn(String color) {
         return new Queen(color);
     }
+
+    public String getCheckSource(String color) {
+        String kingPos = findKingPosition(color);
+        if (kingPos == null) return null;
+
+        String enemyColor = color.equals("white") ? "black" : "white";
+        int[] kingRC = Board.fromChessNotation(kingPos);
+
+        for (int r = 0; r < 8; r++) {
+            for (int c = 0; c < 8; c++) {
+                Piece p = board.getPiece(r, c);
+                if (p != null && p.getColor().equals(enemyColor)) {
+                    if (p.isValidMove(r, c, kingRC[0], kingRC[1], board)) {
+                        return Board.toChessNotation(r, c);
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
 }

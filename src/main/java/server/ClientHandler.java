@@ -32,20 +32,34 @@ public class ClientHandler implements Runnable {
 
     @Override
     public void run() {
-        System.out.println(name + " connected.");
+        System.out.println("[INFO] " + name + " connected.");
         ServerMain.joinLobby(this);
+
         try {
             String line;
             while ((line = in.readLine()) != null) {
-                System.out.println(name + " says: " + line);
+                System.out.println("[INFO] " + name + " says: " + line);
+
                 if (line.equals("READY") && room != null) {
                     room.setReady(this);
                 } else if (line.startsWith("MOVE") && room != null) {
                     room.forwardMove(this, line);
+                } else if (line.equals("EXIT")) {
+                    break;
                 }
             }
         } catch (IOException e) {
-            System.out.println(name + " disconnected.");
+            System.out.println("[INFO] " + name + " connection error: " + e.getMessage());
+        } finally {
+            System.out.println("[INFO] " + name + " has disconnected.");
+            try {
+                if (room != null) {
+                    room.notifyOpponentDisconnected(this);
+                }
+                socket.close();
+            } catch (IOException e) {
+                System.out.println("[INFO] Error closing socket for " + name + ": " + e.getMessage());
+            }
         }
     }
 }
