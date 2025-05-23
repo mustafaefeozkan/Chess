@@ -6,11 +6,13 @@ import java.net.Socket;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+/** Launches the chess server and manages client connections and game room assignments. */
 public class ServerMain {
     private static final int PORT = 5000;
     private static final List<ClientHandler> lobby = new CopyOnWriteArrayList<>();
     private static final List<ChessRoom> rooms = new CopyOnWriteArrayList<>();
 
+    // Starts the server and listens for incoming client connections.
     public static void main(String[] args) throws IOException {
         System.out.println("Server started on port " + PORT);
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
@@ -22,6 +24,7 @@ public class ServerMain {
         }
     }
 
+    // Adds a client to the lobby and creates a game room if two players are available.
     public static synchronized void joinLobby(ClientHandler player) {
         lobby.add(player);
         System.out.println(player.getName() + " joined the lobby. Total: " + lobby.size());

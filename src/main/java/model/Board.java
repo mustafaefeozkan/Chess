@@ -3,16 +3,19 @@ package model;
 import java.util.HashMap;
 import java.util.Map;
 
+/** Represents the chessboard and handles piece placement and movement. */
 public class Board {
     private final Piece[][] grid;
     private final Map<String, Piece> positionMap;
 
+    // Initializes the board and places all pieces in their starting positions.
     public Board() {
         grid = new Piece[8][8];
         positionMap = new HashMap<>();
         initializeBoard();
     }
 
+    // Sets up the initial arrangement of pieces on the board.
     private void initializeBoard() {
         String[] order = {"rook", "knight", "bishop", "queen", "king", "bishop", "knight", "rook"};
 
@@ -30,6 +33,7 @@ public class Board {
         }
     }
 
+    // Creates a piece of the given color and type.
     private Piece createPiece(String color, String type) {
         return switch (type) {
             case "rook" -> new Rook(color);
@@ -41,19 +45,23 @@ public class Board {
         };
     }
 
+    // Returns the piece at the given row and column.
     public Piece getPiece(int row, int col) {
         return grid[row][col];
     }
 
+    // Returns the piece at the specified board position.
     public Piece getPiece(String pos) {
         return positionMap.get(pos);
     }
 
+    // Places the given piece at the specified row and column.
     public void setPiece(int row, int col, Piece piece) {
         grid[row][col] = piece;
         positionMap.put(toChessNotation(row, col), piece);
     }
 
+    // Moves a piece from one position to another.
     public void movePiece(String from, String to) {
         Piece piece = positionMap.get(from);
         if (piece == null) return;
@@ -70,12 +78,14 @@ public class Board {
         piece.setMoved(true);
     }
 
+    // Converts row and column indexes to chess notation.
     public static String toChessNotation(int row, int col) {
         char file = (char) ('a' + col);
         int rank = 8 - row;
         return "" + file + rank;
     }
 
+    // Converts chess notation to row and column indexes.
     public static int[] fromChessNotation(String pos) {
         int col = pos.charAt(0) - 'a';
         int row = 8 - Character.getNumericValue(pos.charAt(1));

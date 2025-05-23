@@ -1,15 +1,20 @@
 package model;
 
+/** Represents a rook chess piece and its horizontal or vertical movement. */
 public class Rook extends Piece {
+
+    // Creates a rook with the specified color.
     public Rook(String color) {
         super(color);
     }
 
+    // Returns the type of this piece.
     @Override
     public String getType() {
         return "rook";
     }
 
+    // Checks if the rook's move is valid along rows or columns.
     @Override
     public boolean isValidMove(int fromRow, int fromCol, int toRow, int toCol, Board board) {
         if (fromRow != toRow && fromCol != toCol) return false;
@@ -20,6 +25,7 @@ public class Rook extends Piece {
         return target == null || !target.getColor().equals(this.color);
     }
 
+    // Checks if the straight path from source to destination is clear.
     private boolean isPathClear(int fromRow, int fromCol, int toRow, int toCol, Board board) {
         int rowDir = Integer.compare(toRow, fromRow);
         int colDir = Integer.compare(toCol, fromCol);

@@ -1,12 +1,15 @@
 package model;
 
+/** Contains the logic for enforcing chess rules such as check, checkmate, castling, and promotion. */
 public class RuleEngine {
     private final Board board;
 
+    // Initializes the rule engine with the given board.
     public RuleEngine(Board board) {
         this.board = board;
     }
 
+    // Validates whether a move is legal for the current player.
     public boolean isMoveValid(String from, String to, String currentColor) {
         Piece piece = board.getPiece(from);
         if (piece == null || !piece.getColor().equals(currentColor)) return false;
@@ -33,6 +36,7 @@ public class RuleEngine {
         return !check;
     }
 
+    // Checks if the player's king is currently in check.
     public boolean isCheck(String color) {
         String kingPos = findKingPosition(color);
         if (kingPos == null) return false;
@@ -53,6 +57,7 @@ public class RuleEngine {
         return false;
     }
 
+    // Determines if the player is in checkmate.
     public boolean isCheckmate(String color) {
         if (!isCheck(color)) return false;
 
@@ -75,6 +80,7 @@ public class RuleEngine {
         return true;
     }
 
+    // Determines if the player is in stalemate.
     public boolean isStalemate(String color) {
         if (isCheck(color)) return false;
 
@@ -97,6 +103,7 @@ public class RuleEngine {
         return true;
     }
 
+    // Checks if castling is allowed for the given king and rook positions.
     public boolean canCastle(String from, String to, String color) {
         int row = color.equals("white") ? 7 : 0;
         Piece king = board.getPiece(from);
@@ -137,6 +144,7 @@ public class RuleEngine {
         return false;
     }
 
+    // Returns the rook's movement during castling, if applicable.
     public String[] getCastleRookMove(String from, String to, String color) {
         int row = color.equals("white") ? 7 : 0;
         if (!from.equals(Board.toChessNotation(row, 4))) return null;
@@ -152,6 +160,7 @@ public class RuleEngine {
         return null;
     }
 
+    // Finds the position of the king for the given color.
     private String findKingPosition(String color) {
         for (int r = 0; r < 8; r++) {
             for (int c = 0; c < 8; c++) {
@@ -164,16 +173,19 @@ public class RuleEngine {
         return null;
     }
 
+    // Checks if the pawn should be promoted based on its final position.
     public boolean shouldPromote(String pos, Piece piece) {
         return piece instanceof Pawn &&
                 ((piece.getColor().equals("white") && pos.endsWith("8")) ||
                         (piece.getColor().equals("black") && pos.endsWith("1")));
     }
 
+    // Returns the new piece to replace a promoted pawn.
     public Piece promotePawn(String color) {
         return new Queen(color);
     }
 
+    // Identifies the source of a check against the current player's king.
     public String getCheckSource(String color) {
         String kingPos = findKingPosition(color);
         if (kingPos == null) return null;
@@ -193,5 +205,4 @@ public class RuleEngine {
         }
         return null;
     }
-
 }

@@ -1,15 +1,20 @@
 package model;
 
+/** Represents a pawn chess piece and its forward and diagonal capture movement. */
 public class Pawn extends Piece {
+
+    // Creates a pawn with the specified color.
     public Pawn(String color) {
         super(color);
     }
 
+    // Returns the type of this piece.
     @Override
     public String getType() {
         return "pawn";
     }
 
+    // Checks if the pawn's move is valid, including standard, double-step, and diagonal capture.
     @Override
     public boolean isValidMove(int fromRow, int fromCol, int toRow, int toCol, Board board) {
         int direction = color.equals("white") ? -1 : 1;

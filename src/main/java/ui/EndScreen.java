@@ -9,15 +9,18 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
+/** Displays the end screen with the game result and options to restart or exit. */
 public class EndScreen {
     private final Stage stage;
     private final String message;
 
+    // Initializes the end screen with the given stage and result message.
     public EndScreen(Stage stage, String message) {
         this.stage = stage;
         this.message = message;
     }
 
+    // Shows the end screen with result, "Play Again", and "End Game" buttons.
     public void show() {
         Label resultLabel = new Label(message);
         resultLabel.setFont(new Font(28));

@@ -19,6 +19,7 @@ import model.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Displays the chess game UI and manages gameplay interaction and state. */
 public class GameScreen {
     private final Stage stage;
     private final ChessClient client;
@@ -39,6 +40,7 @@ public class GameScreen {
     private String lastMoveFrom = null;
     private String lastMoveTo = null;
 
+    // Initializes the game screen with the player's color and sets up server communication.
     public GameScreen(Stage stage, ChessClient client, String myColor) {
         this.stage = stage;
         this.client = client;
@@ -54,21 +56,25 @@ public class GameScreen {
         });
     }
 
+    // Displays the board, updates game state, highlights, and processes player interaction.
     public void show() {
+        // Highlight the source of check if the current player is in check.
         checkSourcePos = ruleEngine.isCheck(myColor) ? ruleEngine.getCheckSource(myColor) : null;
 
+        // Check for checkmate and display the end screen if applicable.
         if (ruleEngine.isCheckmate(currentTurn)) {
             String winner = currentTurn.equals("white") ? "BLACK" : "WHITE";
             new EndScreen(stage, "CHECKMATE - " + winner + " WINS").show();
             return;
         }
 
+        // Check for stalemate and display the end screen if applicable.
         if (ruleEngine.isStalemate(currentTurn)) {
             new EndScreen(stage, "DRAW - STALEMATE").show();
             return;
         }
 
-        GridPane boardGrid = new GridPane();
+        GridPane boardGrid = new GridPane(); // Create the board grid layout.
 
         for (int i = 0; i < 8; i++) {
             int row = myColor.equals("white") ? i : 7 - i;
@@ -91,6 +97,7 @@ public class GameScreen {
 
                 Piece piece = board.getPiece(row, col);
 
+                // Render piece and apply glow effects based on status (check, capturable, hover).
                 if (piece != null) {
                     ImageView iv = getImageView(piece, 60);
 
@@ -118,6 +125,7 @@ public class GameScreen {
                     cell.getChildren().add(iv);
                 }
 
+                // Show green dot on valid empty destination squares.
                 if (validMoves.contains(pos) && board.getPiece(row, col) == null) {
                     Circle indicator = new Circle(7);
                     indicator.setFill(Color.GREEN);
@@ -127,6 +135,7 @@ public class GameScreen {
                 final String position = pos;
                 final Piece pieceHere = piece;
 
+                // Handle user clicks for selecting and moving pieces.
                 cell.setOnMouseClicked(e -> {
                     if (!currentTurn.equals(myColor)) return;
 
@@ -143,16 +152,21 @@ public class GameScreen {
                             }
                         }
                         show();
+
                     } else if (selectedPiece != null) {
                         String from = selectedPos;
                         String to = position;
+
+                        // Validate and execute the move if legal.
                         if (!to.equals(from) && ruleEngine.isMoveValid(from, to, myColor)) {
                             Piece captured = board.getPiece(to);
                             if (captured != null) {
+                                // Track captured piece for later display.
                                 if (captured.getColor().equals("white")) blackCaptured.add(captured);
                                 else whiteCaptured.add(captured);
                             }
 
+                            // Record move and prepare message.
                             Move move = new Move(from, to, selectedPiece, captured);
                             moveHistory.add(move);
 
@@ -166,12 +180,15 @@ public class GameScreen {
                                 msg = "MOVE " + from + " " + to;
                             }
 
+                            // Send move to server and apply it to local board.
                             client.send(msg);
                             board.movePiece(from, to);
                             if (msg.contains("CASTLE")) {
                                 String[] p = msg.split(" ");
                                 board.movePiece(p[4], p[5]);
                             }
+
+                            // Check for promotion and apply if needed.
                             Piece moved = board.getPiece(to);
                             if (ruleEngine.shouldPromote(to, moved)) {
                                 board.setPiece(Board.fromChessNotation(to)[0],
@@ -182,9 +199,11 @@ public class GameScreen {
                             lastMoveFrom = from;
                             lastMoveTo = to;
 
+                            // Change turn.
                             currentTurn = currentTurn.equals("white") ? "black" : "white";
                         }
 
+                        // Clear selection and refresh view.
                         selectedPiece = null;
                         selectedPos = null;
                         validMoves.clear();
@@ -196,6 +215,8 @@ public class GameScreen {
             }
         }
 
+
+        // Create a VBox to show captured black pieces under the white label.
         VBox leftCapturedBox = new VBox(5);
         leftCapturedBox.setStyle("-fx-background-color: #eeeeee;");
         Label leftLabel = new Label("WHITE");
@@ -203,6 +224,7 @@ public class GameScreen {
         leftCapturedBox.getChildren().add(leftLabel);
         for (Piece p : blackCaptured) leftCapturedBox.getChildren().add(getImageView(p, 30));
 
+// Create a VBox to show captured white pieces under the black label.
         VBox rightCapturedBox = new VBox(5);
         rightCapturedBox.setStyle("-fx-background-color: #eeeeee;");
         Label rightLabel = new Label("BLACK");
@@ -210,24 +232,29 @@ public class GameScreen {
         rightCapturedBox.getChildren().add(rightLabel);
         for (Piece p : whiteCaptured) rightCapturedBox.getChildren().add(getImageView(p, 30));
 
+// Update the status message to show check or turn information.
         statusLabel.setFont(new Font(18));
         statusLabel.setTextFill(Color.WHITE);
         statusLabel.setText(ruleEngine.isCheck(myColor) ? "CHECK!" :
                 (currentTurn.equals(myColor) ? "YOUR TURN" : "OPPONENT'S TURN"));
 
+// Layout middle row with captured pieces and the board in the center.
         HBox middle = new HBox(20, leftCapturedBox, boardGrid, rightCapturedBox);
         middle.setAlignment(Pos.CENTER);
 
+// Layout the entire screen with the status label and board row.
         VBox root = new VBox(10, statusLabel, middle);
         root.setAlignment(Pos.CENTER);
         root.setStyle("-fx-background-color: black;");
 
+// Set the scene and show the stage.
         Scene scene = new Scene(root, 800, 700);
         stage.setScene(scene);
         stage.setTitle("Chess Game - " + myColor.toUpperCase());
         stage.show();
     }
 
+    // Loads a piece image and returns it as an ImageView.
     private ImageView getImageView(Piece piece, int size) {
         String path = "/images/" + piece.getColor() + "-" + piece.getType() + ".png";
         Image img = new Image(getClass().getResourceAsStream(path));
@@ -237,6 +264,7 @@ public class GameScreen {
         return iv;
     }
 
+    // Handles messages from the server such as moves, turn changes, and disconnections.
     public void handleMessage(String msg) {
         System.out.println("[INFO] Message from server: " + msg);
 
@@ -296,3 +324,4 @@ public class GameScreen {
         }
     }
 }
+

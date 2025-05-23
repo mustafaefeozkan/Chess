@@ -11,18 +11,22 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
+/** Displays the initial screen where the player can connect to the chess server. */
 public class StartScreen {
     private final Stage stage;
     private ChessClient client;
 
+    // Initializes the start screen with the given stage.
     public StartScreen(Stage stage) {
         this.stage = stage;
     }
 
+    // Displays the default start screen message.
     public void show() {
         show("Press to connect");
     }
 
+    // Displays the start screen with the specified message and connect button.
     public void show(String info) {
         Label label = new Label(info);
         label.setFont(new Font(18));
@@ -54,6 +58,7 @@ public class StartScreen {
         stage.show();
     }
 
+    // Handles incoming messages from the server and transitions to the game screen.
     private void handleMessage(String message) {
         if (message.startsWith("START")) {
             String color = message.split(" ")[1];
